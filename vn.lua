@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-02-13 19:56:03",revision=884]]
+--[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-02-13 22:02:46",revision=1087]]
 vn = create_gui()
 vn._images={}
 
@@ -48,17 +48,25 @@ local function nineslice(skin,x,y,w,h)
 	if(t!=nil) palt(t,false)
 end
 
+local function _to_px(n,size)
+	if math.type(n)=="float" then
+		return n*size
+	else
+		return n
+	end
+end
+
 function vn:draw()
 	palt(0)
 	for image in all(vn._images) do
 		local t = image.t or 0
 		palt(t,true)
-		if image._position then
-			local x,y = image._position.x, image._position.y
-			spr(image[1],x,y)
-		else
-			spr(image[1])
-		end
+		
+		local img = image[1]
+		local x = _to_px(image.position.x,self.width)-_to_px(image.anchor.x,img:width())
+		local y = _to_px(image.position.y,self.height)-_to_px(image.anchor.y,img:height())
+		spr(img,x,y)
+		
 		palt(t,false)
 	end
 	--palt()
@@ -172,6 +180,31 @@ function vn.createChoices(table)
 	return selection
 end
 
+-- class Point
+
+Point = {__index={x=nil;y=nil}}
+setmetatable(Point,{
+	__call=function(self,table)
+		self=setmetatable({},Point)
+		if(not table) return self
+		if type(table.x)=="number" or type(table.y)=="number" then
+			self.x = type(table.x)=="number" and table.x or nil
+			self.y = type(table.y)=="number" and table.y or nil
+		elseif type(table[1])=="number" or type(table[2])=="number" then
+			self.x = type(table[1])=="number" and table[1] or nil
+			self.y = type(table[2])=="number" and table[2] or nil
+		end
+		return self
+	end;
+})
+function Point.__index.setFrom(p1,p2)
+	if(getmetatable(p1)!=Point)p1=Point(p1)
+	if(getmetatable(p2)!=Point)p2=Point(p2)
+	if(p2.x!=nil)p1.x=p2.x
+	if(p2.y!=nil)p1.y=p2.y
+	return p1
+end
+
 -- class Character
 
 Character = {
@@ -181,8 +214,8 @@ Character = {
 		print(message)
 		messageBox:showMessage(self.name,message)
 	end;
+	__index={};
 }
-Character.__index=Character
 setmetatable(Character,{
 	__call=function(self,table)
 		for key,value in pairs(table) do
@@ -197,14 +230,14 @@ setmetatable(Character,{
 	end;
 })
 
-function Character:_find_image()
+function Character.__index:_find_image()
 	for i,image in pairs(vn._images) do
 		if image.character == self then
 			return image
 		end
 	end
 end
-function Character:hide()
+function Character.__index:hide()
 	local image = self:_find_image()
 	if image then
 		image:hide()
@@ -231,9 +264,17 @@ Image = {
 			print("NO CHARACTER")
 		end
 	end;
+	__index={};
 }
-Image.__index=Image
-function Image:show(position)
+setmetatable(Image,{
+	__call=function(self,table)
+		self=setmetatable(table,Image)
+		self.position=Point{0,0}
+		self.anchor=Point{0,0}:setFrom(self.anchor)
+		return self
+	end;
+})
+function Image.__index:show(position)
 	if(messageBox:hasMessage()) yield()
 	messageBox:clearMessage()
 	if self.character then
@@ -246,23 +287,20 @@ function Image:show(position)
 		end
 	end
 	if position then
-		if position.x and position.y then
-			self._position = position
+		self.position:setFrom(position)
+		if position.anchor then
+			self.anchor:setFrom(position.anchor)
 		end
 	end
 	add(vn._images,self)
 end
-function Image:hide()
+function Image.__index:hide()
 	if(messageBox:hasMessage()) yield()
 	messageBox:clearMessage()
 	del(vn._images,self)
 end
-setmetatable(Image,{
-	__call=function(self,table)
-		setmetatable(table,Image)
-		return table
-	end;
-})
+
+-- other functions
 
 function choice(table)
 	local selection = vn.createChoices(table)
