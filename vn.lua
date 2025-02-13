@@ -1,8 +1,8 @@
---[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-01-27 16:30:20",revision=842]]
+--[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-02-13 19:56:03",revision=884]]
 vn = create_gui()
 vn._images={}
 
-local function print_wrap(text,x,y,c, wrap)
+local function print_wrap(text,x,y,c, wrap,text_shadow)
 	local words = split(text," ",false)
 	local lastx,lasty=x,y
 	for word in all(words) do
@@ -10,6 +10,11 @@ local function print_wrap(text,x,y,c, wrap)
 		if wordx>=wrap then
 			lastx=x
 			lasty+=10
+		end
+		if text_shadow!=nil then
+			print(word,lastx+1,lasty,text_shadow)
+			print(word,lastx,lasty+1,text_shadow)
+			print(word,lastx+1,lasty+1,text_shadow)
 		end
 		lastx=print(word.." ",lastx,lasty,c)
 	end
@@ -71,6 +76,7 @@ local messageBox = vn:attach{
 	justify="center";
 	message=""; typewriter=""; log={};
 	color=7;
+	text_shadow=0;
 	skin=nil, padding=2
 }
 vn.messageBox = messageBox
@@ -96,7 +102,7 @@ function messageBox:draw()
 		rect(0,0,self.width-1,self.height-1)
 	end
 	local padding, vpadding = self.padding, self.vpadding or self.padding
-	print_wrap(self.message,padding,vpadding,self.color,self.width-padding*2)
+	print_wrap(self.message,padding,vpadding,self.color,self.width-padding*2,self.text_shadow)
 end
 function messageBox:update()
 	if #self.typewriter>0 then
