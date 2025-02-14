@@ -1,6 +1,7 @@
---[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-02-14 00:27:09",revision=1131]]
+--[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-02-14 05:51:22",revision=1321]]
 vn = create_gui()
 vn._images={}
+vn.choices={}
 
 local function print_wrap(text,x,y,c, wrap,text_shadow)
 	local words = split(text," ",false)
@@ -154,15 +155,34 @@ function vn.createChoices(table)
 	local choices={}
 	local choiceIndex=0
 	local selection = {choice=nil}
+	local choiceArea = vn:attach{
+		x=vn.choices.x or 0;
+		y=vn.choices.y or -vn.messageBox.height-1;
+		width=vn.choices.width or 100;
+		height=12;
+		justify=vn.choices.justify or "right";
+		vjustify=vn.choices.vjustify or "bottom";
+	}
 	function createChoice(key,func)
-		local choiceButton = vn:attach{
-			x=200;y=choiceIndex*30;width=100;height=20;
+		local index = choiceIndex
+		local choiceButton = choiceArea:attach{
+			x=0;y=index*14;width_rel=1.0;height=12;
+			cursor=5;
 			choice=key;choiceFunction=func;
 		}
+		choiceArea.height = index*14+12
 		choiceIndex+=1
 		function choiceButton:draw()
-			rect(0,0,self.width-1,self.height-1)
-			print(self.choice,2,2)
+			local i = index%#vn.choices+1
+			local choice = vn.choices[i] or vn.choices
+			if choice.skin then
+				nineslice(choice.skin,0,0,self.width,self.height)
+			else
+				rect(0,0,self.width-1,self.height-1)
+			end
+			local text_shadow = choice.text_shadow or 0
+			local padding, vpadding = choice.padding or 2, choice.vpadding or choice.padding or 2
+			print_wrap(self.choice,padding,vpadding,choice.color or 7,self.width-padding*2,text_shadow)
 		end
 		function choiceButton:click()
 			--self.choice="CLICKED"
@@ -171,6 +191,7 @@ function vn.createChoices(table)
 				--vn:detach(choice)
 				choice:detach()
 			end
+			choiceArea:detach()
 		end
 		return choiceButton
 	end

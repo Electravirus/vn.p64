@@ -1,8 +1,9 @@
---[[pod_format="raw",created="2024-05-24 21:42:07",modified="2025-02-14 00:27:09",revision=879]]
+--[[pod_format="raw",created="2024-05-24 21:42:07",modified="2025-02-14 05:51:22",revision=1039]]
 ella=Character{"Ella",smile=Image{fetch"ella.pod",t=28,anchor={0.5,1.0}}}
 
 vn.messageBox.skin = Image{get_spr(1),t=30}
 vn.messageBox.padding = 5
+vn.choices={skin=Image{get_spr(2),t=30}}
 
 vn.Start(function()
 	say "hello"
