@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-05-24 21:42:07",modified="2025-02-14 05:51:22",revision=1039]]
+--[[pod_format="raw",created="2024-05-24 21:42:07",modified="2025-02-14 15:27:11",revision=1046]]
 ella=Character{"Ella",smile=Image{fetch"ella.pod",t=28,anchor={0.5,1.0}}}
 
 vn.messageBox.skin = Image{get_spr(1),t=30}

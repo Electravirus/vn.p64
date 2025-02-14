@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-02-14 05:51:22",revision=1321]]
+--[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-02-14 15:27:11",revision=1329]]
 vn = create_gui()
 vn._images={}
 vn.choices={}
@@ -76,6 +76,7 @@ end
 local co
 function vn.Start(func)
 	co = cocreate(func)
+	vn:click()
 end
 
 local messageBox = vn:attach{
