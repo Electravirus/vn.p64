@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-02-13 22:02:46",revision=1087]]
+--[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-02-14 00:27:09",revision=1131]]
 vn = create_gui()
 vn._images={}
 
@@ -187,13 +187,10 @@ setmetatable(Point,{
 	__call=function(self,table)
 		self=setmetatable({},Point)
 		if(not table) return self
-		if type(table.x)=="number" or type(table.y)=="number" then
-			self.x = type(table.x)=="number" and table.x or nil
-			self.y = type(table.y)=="number" and table.y or nil
-		elseif type(table[1])=="number" or type(table[2])=="number" then
-			self.x = type(table[1])=="number" and table[1] or nil
-			self.y = type(table[2])=="number" and table[2] or nil
-		end
+		
+		self.x = type(table.x)=="number" and table.x or type(table[1])=="number" and table[1] or nil
+		self.y = type(table.y)=="number" and table.y or type(table[2])=="number" and table[2] or nil
+	
 		return self
 	end;
 })
