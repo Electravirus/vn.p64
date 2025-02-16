@@ -1,7 +1,87 @@
---[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-02-14 15:27:11",revision=1329]]
+--[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-02-15 18:15:37",revision=1692]]
 vn = create_gui()
 vn._images={}
 vn.choices={}
+
+-- color utilities
+local function get_rgba(c)
+	local m=0x5000+4*c
+	return peek(m+2),peek(m+1),peek(m),peek(m+3)
+end
+local nearest_color_mindist = 255*255+255*255+255*255+1
+local function nearest_color(r,g,b)
+	local mindist=nearest_color_mindist
+	local nc=0
+	for pc=0,63 do
+		local r2,g2,b2 = get_rgba(pc)
+		local rdiff,gdiff,bdiff=r-r2,g-g2,b-b2
+		local dist = rdiff*rdiff+gdiff*gdiff+bdiff*bdiff
+		if dist<mindist then
+			mindist=dist
+			nc=pc
+		end
+	end
+	return nc
+end
+local function mix_colors(c1,c2,a)
+	local r1,g1,b1 = get_rgba(c1)
+	local r2,g2,b2 = get_rgba(c2)
+	local r,g,b = r1*(1-a)+r2*a, g1*(1-a)+g2*a, b1*(1-a)+b2*a
+	return nearest_color(r,g,b)
+end
+
+local function apply_colortable_row(data,row,table_number)
+	table_number = table_number or 0
+	local address = 0x8000+4096*table_number+64*row
+	--memmap(address,data:copy())
+	for i=0,#data-1 do
+		poke(address+i,data[i])
+	end
+end
+local function generate_colortable_row(a,c2)
+	local colordata = userdata("u8",64)
+	for c1=0,63 do
+		colordata:set(c1,c1==c2 and c2 or a==0 and c1 or a==1 and c2 or mix_colors(c1,c2,a))
+	end
+	return colordata
+end
+local colortable_cache={}
+local function get_cached_colortable_row(a,c2)
+	if(not colortable_cache[c2])colortable_cache[c2]={}
+	if(not colortable_cache[c2][a])colortable_cache[c2][a]=generate_colortable_row(a,c2)
+	--error(pod(colortable_cache[c2][a]))
+	return colortable_cache[c2][a]
+end
+function vn.clear_color_cache()
+	colortable_cache={}
+end
+
+local function palt_apply(t)
+	if type(t)=="number" then
+		palt(t,true)
+	elseif type(t)=="table" then
+		for c,a in pairs(t) do
+			if a==0 then
+				palt(c,true)
+			elseif a==1 then
+				palt(c,false)
+			else
+				apply_colortable_row(get_cached_colortable_row(a,c),c,0)
+			end
+		end
+	end
+end
+local function palt_reset(t)
+	if type(t)=="number" then
+		palt(t,false)
+	elseif type(t)=="table" then
+		for c in pairs(t) do
+			palt(c,false)
+		end
+	end
+end
+
+-- utility functions
 
 local function print_wrap(text,x,y,c, wrap,text_shadow)
 	local words = split(text," ",false)
@@ -28,25 +108,31 @@ local function nineslice(skin,x,y,w,h)
 	local pw = img:width()/3
 	local ph = img:height()/3
 	
-	local sx1,sx2,sx3 = 0, pw, pw*2
-	local sy1,sy2,sy3 = 0, ph, ph*2
-	local dx1,dx2,dx3 = x, x+pw, x+w-pw
-	local dy1,dy2,dy3 = y, y+ph, y+h-ph	
-	if(t!=nil) palt(t,true)
+	local pw2 = min(pw,w/2)
+	local ph2 = min(ph,h/2)
+	
+	local sx1,sx2,sx3 = 0, pw, pw*3-pw2
+	local sy1,sy2,sy3 = 0, ph, ph*3-ph2
+	local dx1,dx2,dx3 = x, x+pw, x+w-pw2
+	local dy1,dy2,dy3 = y, y+ph, y+h-ph2
+	if(t!=nil) palt_apply(t)
 
-	sspr(img, sx1,sy1, pw,ph, dx1,dy1)
-	sspr(img, sx2,sy1, pw,ph, dx2,dy1, w-pw*2,ph)
-	sspr(img, sx3,sy1, pw,ph, dx3,dy1)
 	
-	sspr(img, sx1,sy2, pw,ph, dx1,dy2, pw,h-ph*2)
-	sspr(img, sx2,sy2, pw,ph, dx2,dy2, w-pw*2,h-ph*2)
-	sspr(img, sx3,sy2, pw,ph, dx3,dy2, pw,h-ph*2)
+	sspr(img, sx1,sy1, pw2,ph2, dx1,dy1)
+	if(w>pw*2)sspr(img, sx2,sy1, pw2,ph2, dx2,dy1, w-pw*2,ph2)
+	sspr(img, sx3,sy1, pw2,ph2, dx3,dy1)
 	
-	sspr(img, sx1,sy3, pw,ph, dx1,dy3)
-	sspr(img, sx2,sy3, pw,ph, dx2,dy3, w-pw*2,ph)
-	sspr(img, sx3,sy3, pw,ph, dx3,dy3)
+	if h>ph*2 then
+		sspr(img, sx1,sy2, pw2,ph2, dx1,dy2, pw,h-ph*2)
+		if(w>pw*2)sspr(img, sx2,sy2, pw2,ph2, dx2,dy2, w-pw*2,h-ph*2)
+		sspr(img, sx3,sy2, pw2,ph2, dx3,dy2, pw,h-ph*2)
+	end
 	
-	if(t!=nil) palt(t,false)
+	sspr(img, sx1,sy3, pw2,ph2, dx1,dy3)
+	if(w>pw*2)sspr(img, sx2,sy3, pw2,ph2, dx2,dy3, w-pw*2,ph2)
+	sspr(img, sx3,sy3, pw2,ph2, dx3,dy3)
+	
+	if(t!=nil) palt_reset(t)
 end
 
 local function _to_px(n,size)
@@ -61,14 +147,14 @@ function vn:draw()
 	palt(0)
 	for image in all(vn._images) do
 		local t = image.t or 0
-		palt(t,true)
+		if(t!=nil) palt_apply(t)
 		
 		local img = image[1]
 		local x = _to_px(image.position.x,self.width)-_to_px(image.anchor.x,img:width())
 		local y = _to_px(image.position.y,self.height)-_to_px(image.anchor.y,img:height())
 		spr(img,x,y)
 		
-		palt(t,false)
+		if(t!=nil) palt_reset(t)
 	end
 	--palt()
 end
