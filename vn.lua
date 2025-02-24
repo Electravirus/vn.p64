@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-02-18 02:41:49",revision=1740]]
+--[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-02-24 02:59:09",revision=1817]]
 vn = create_gui()
 vn._images={}
 vn.choices={}
@@ -177,6 +177,16 @@ local messageBox = vn:attach{
 }
 vn.messageBox = messageBox
 
+local nameBox = vn:attach{
+	x=0;y=-60;width=80;height=16;
+	vjustify="bottom";
+	justify="left";
+	name="";
+	color=7;text_shadow=0;
+	skin=nil, padding=2
+}
+vn.nameBox = nameBox
+
 local function on_resize()
 	local width = 480
 	local display = get_display()
@@ -200,6 +210,20 @@ function messageBox:draw()
 	local padding, vpadding = self.padding, self.vpadding or self.padding
 	print_wrap(self.message,padding,vpadding,self.color,self.width-padding*2,self.text_shadow)
 end
+function nameBox:draw()
+	if(self.name=="") return
+	if self.skin then
+		nineslice(self.skin,0,0,self.width,self.height)
+	else
+		rect(0,0,self.width-1,self.height-1)
+	end
+	local padding, vpadding = self.padding, self.vpadding or self.padding
+	print_wrap(self.name,padding,vpadding,self.color,self.width-padding*2,self.text_shadow)
+end
+function nameBox:update()
+	if(self.name=="") return
+	self.x=messageBox.sx
+end
 function messageBox:update()
 	if #self.typewriter>0 then
 		self.message ..= self.typewriter:sub(1,1)
@@ -210,10 +234,12 @@ function messageBox:showMessage(name,message)
 	if #self.message>0 then
 		add(self.log, name..": "..self.message)
 	end
+	nameBox.name=name
 	self.message=""
 	self.typewriter=message
 end
 function messageBox:clearMessage()
+	nameBox.name=""
 	self.message=""
 	self.typewriter=""
 end

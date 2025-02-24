@@ -1,9 +1,12 @@
---[[pod_format="raw",created="2024-05-24 21:42:07",modified="2025-02-18 02:41:49",revision=1366]]
+--[[pod_format="raw",created="2024-05-24 21:42:07",modified="2025-02-24 02:59:09",revision=1434]]
 ella=Character{"Ella",smile=Image{fetch"ella.pod",t=28,anchor={0.5,0.5}}}
 bg=Image{fetch"bg.pod",anchor={0.5,1.0}}
 
 vn.messageBox.skin = Image{get_spr(1),t={[30]=0;[1]=0.75}}
 vn.messageBox.padding = 5
+vn.nameBox.skin=vn.messageBox.skin
+vn.nameBox.padding = 4
+vn.nameBox.height=16
 vn.choices={skin=Image{get_spr(2),t={[30]=0;[5]=0.75}}}
 
 vn.Start(function()
