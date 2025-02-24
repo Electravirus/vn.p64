@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-02-24 02:59:09",revision=1817]]
+--[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-02-24 03:04:28",revision=1853]]
 vn = create_gui()
 vn._images={}
 vn.choices={}
@@ -316,7 +316,7 @@ end
 
 -- class Point
 
-Point = {__index={x=nil;y=nil}}
+local Point = {__index={x=nil;y=nil}}
 setmetatable(Point,{
 	__call=function(self,table)
 		self=setmetatable({},Point)
@@ -328,6 +328,7 @@ setmetatable(Point,{
 		return self
 	end;
 })
+vn.Point = Point
 function Point.__index.setFrom(p1,p2)
 	if(getmetatable(p1)!=Point)p1=Point(p1)
 	if(getmetatable(p2)!=Point)p2=Point(p2)
@@ -338,7 +339,7 @@ end
 
 -- class Character
 
-Character = {
+local Character = {
 	__call=function(self,message)
 		--messageBox:showMessage(self.name,tostr(messageBox.typewriter))
 		if(messageBox:hasMessage()) yield()
@@ -347,6 +348,7 @@ Character = {
 	end;
 	__index={};
 }
+vn.Character = Character
 setmetatable(Character,{
 	__call=function(self,table)
 		for key,value in pairs(table) do
@@ -385,7 +387,7 @@ local function replace_character_image(self)
 	end
 end
 
-Image = {
+local Image = {
 	__call=function(self,message)
 		-- show image
 		if self.character then
@@ -397,6 +399,7 @@ Image = {
 	end;
 	__index={};
 }
+vn.Image=Image
 setmetatable(Image,{
 	__call=function(self,table)
 		self=setmetatable(table,Image)
@@ -433,7 +436,7 @@ end
 
 -- other functions
 
-function choice(table)
+function vn.choice(table)
 	local selection = vn.createChoices(table)
 	while not selection.choice do
 		yield()
@@ -442,4 +445,4 @@ function choice(table)
 	selection.choice()
 end
 
-say=Character{}
+vn.say=Character{}

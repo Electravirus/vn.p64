@@ -1,4 +1,7 @@
---[[pod_format="raw",created="2024-05-24 21:42:07",modified="2025-02-24 02:59:09",revision=1434]]
+--[[pod_format="raw",created="2024-05-24 21:42:07",modified="2025-02-24 03:04:28",revision=1473]]
+local say,choice = vn.say,vn.choice
+local Image,Character = vn.Image,vn.Character
+
 ella=Character{"Ella",smile=Image{fetch"ella.pod",t=28,anchor={0.5,0.5}}}
 bg=Image{fetch"bg.pod",anchor={0.5,1.0}}
 
