@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-02-24 03:04:28",revision=1853]]
+--[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-02-25 23:01:25",revision=1980]]
 vn = create_gui()
 vn._images={}
 vn.choices={}
@@ -231,6 +231,12 @@ function messageBox:update()
 	end
 end
 function messageBox:showMessage(name,message)
+	if getmetatable(name)==vn.Character then
+		if(name.color)nameBox.color=name.color
+		name = name.name
+	elseif name=="error" then
+		nameBox.color=8
+	end
 	if #self.message>0 then
 		add(self.log, name..": "..self.message)
 	end
@@ -344,7 +350,7 @@ local Character = {
 		--messageBox:showMessage(self.name,tostr(messageBox.typewriter))
 		if(messageBox:hasMessage()) yield()
 		print(message)
-		messageBox:showMessage(self.name,message)
+		messageBox:showMessage(self,message)
 	end;
 	__index={};
 }
@@ -358,6 +364,7 @@ setmetatable(Character,{
 			end
 		end
 		table.name = table[1] or ""
+		table.color = table.color or 7
 		setmetatable(table,Character)
 		return table
 	end;

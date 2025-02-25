@@ -1,8 +1,8 @@
---[[pod_format="raw",created="2024-05-24 21:42:07",modified="2025-02-24 03:04:28",revision=1473]]
+--[[pod_format="raw",created="2024-05-24 21:42:07",modified="2025-02-25 23:01:25",revision=1569]]
 local say,choice = vn.say,vn.choice
 local Image,Character = vn.Image,vn.Character
 
-ella=Character{"Ella",smile=Image{fetch"ella.pod",t=28,anchor={0.5,0.5}}}
+ella=Character{"Ella",color=10,smile=Image{fetch"ella.pod",t=28,anchor={0.5,0.5}}}
 bg=Image{fetch"bg.pod",anchor={0.5,1.0}}
 
 vn.messageBox.skin = Image{get_spr(1),t={[30]=0;[1]=0.75}}
