@@ -352,7 +352,7 @@ vn.Character = Character
 setmetatable(Character,{
 	__call=function(self,table)
 		for key,value in pairs(table) do
-			if getmetatable(value)==Image then
+			if getmetatable(value)==vn.Image then
 				value.character=table
 				value.name=key
 			end
