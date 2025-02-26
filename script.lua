@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-05-24 21:42:07",modified="2025-02-25 23:01:25",revision=1569]]
+--[[pod_format="raw",created="2024-05-24 21:42:07",modified="2025-02-26 20:55:18",revision=1631]]
 local say,choice = vn.say,vn.choice
 local Image,Character = vn.Image,vn.Character
 
@@ -12,7 +12,7 @@ vn.nameBox.padding = 4
 vn.nameBox.height=16
 vn.choices={skin=Image{get_spr(2),t={[30]=0;[5]=0.75}}}
 
-vn.Start(function()
+vn.start(function()
 	bg:show{0.5;1.0}
 	say "hello"
 	say "world"

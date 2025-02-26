@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-02-25 23:01:25",revision=1980]]
+--[[pod_format="raw",created="2024-05-24 21:24:51",modified="2025-02-26 20:55:18",revision=2038]]
 vn = create_gui()
 vn._images={}
 vn.choices={}
@@ -160,10 +160,11 @@ function vn:draw()
 end
 
 local co
-function vn.Start(func)
+function vn.start(func)
 	co = cocreate(func)
 	vn:click()
 end
+vn.jump=vn.start
 
 local messageBox = vn:attach{
 	x=0;y=0;width=200;height=60;
